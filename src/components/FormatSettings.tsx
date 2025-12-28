@@ -9,7 +9,8 @@ import {
   Collapse,
   Input,
   message,
-  Modal
+  Modal,
+  InputNumber
 } from 'antd';
 import { FormatConfig, FontFamily, FontSize, Alignment, LineSpacing } from '../types/format';
 import { formatConfigManager } from '../core/formatConfig';
@@ -201,7 +202,7 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
           formatOptions.fontSize,
           formatOptions.alignment,
           formatOptions.lineSpacing,
-          false, // hasBold
+          true, // hasBold
           false // hasLineSpacing
         )
       ]
@@ -345,6 +346,47 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
         false, // hasBold
         false // hasLineSpacing
       ).slice(0, 2) // Only family and size for footnotes
+    },
+    {
+      key: 'numberingIndents',
+      label: '序号缩进设置',
+      children: [
+        <Form.Item
+          key="numberingIndents-level1"
+          label={['一级序号缩进', '（一、二、三、）']}
+          name={['numberingIndents', 'level1']}
+        >
+          <InputNumber min={0} max={20} step={0.5} addonAfter="em" />
+        </Form.Item>,
+        <Form.Item
+          key="numberingIndents-level2"
+          label={['二级序号缩进', '（（一）（二）（三））']}
+          name={['numberingIndents', 'level2']}
+        >
+          <InputNumber min={0} max={20} step={0.5} addonAfter="em" />
+        </Form.Item>,
+        <Form.Item
+          key="numberingIndents-level3"
+          label={['三级序号缩进', '（1. 2. 3.）']}
+          name={['numberingIndents', 'level3']}
+        >
+          <InputNumber min={0} max={20} step={0.5} addonAfter="em" />
+        </Form.Item>,
+        <Form.Item
+          key="numberingIndents-level4"
+          label={['四级序号缩进', '（（1）（2）（3））']}
+          name={['numberingIndents', 'level4']}
+        >
+          <InputNumber min={0} max={20} step={0.5} addonAfter="em" />
+        </Form.Item>,
+        <Form.Item
+          key="numberingIndents-level5"
+          label={['五级序号缩进', '（①②③）']}
+          name={['numberingIndents', 'level5']}
+        >
+          <InputNumber min={0} max={20} step={0.5} addonAfter="em" />
+        </Form.Item>
+      ]
     }
   ], [formatOptions]);
 

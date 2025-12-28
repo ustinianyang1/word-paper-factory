@@ -12,25 +12,8 @@ export const PaperForm: React.FC = () => {
     form.setFieldsValue(paperData);
   }, [paperData, form]);
 
-  const handleValuesChange = (_: any, allValues: any) => {
-    // Sanitize all text inputs
-    const sanitizedValues = {
-      ...allValues,
-      title: sanitizeText(allValues.title || '', LIMITS.TITLE_MAX_LENGTH),
-      abstract: sanitizeText(allValues.abstract || '', LIMITS.ABSTRACT_MAX_LENGTH),
-      keywords: sanitizeText(allValues.keywords || '', LIMITS.KEYWORDS_MAX_LENGTH),
-      introduction: sanitizeText(allValues.introduction || '', LIMITS.CONTENT_MAX_LENGTH),
-      content: sanitizeText(allValues.content || '', LIMITS.CONTENT_MAX_LENGTH),
-      conclusion: sanitizeText(allValues.conclusion || '', LIMITS.CONTENT_MAX_LENGTH),
-      references: sanitizeText(allValues.references || '', LIMITS.CONTENT_MAX_LENGTH),
-      personalInfo: (allValues.personalInfo || []).map((item: any) => ({
-        ...item,
-        label: sanitizeText(item?.label || '', LIMITS.PERSONAL_INFO_LABEL_MAX_LENGTH),
-        value: sanitizeText(item?.value || '', LIMITS.PERSONAL_INFO_VALUE_MAX_LENGTH)
-      }))
-    };
-    
-    updatePaperData(sanitizedValues);
+  const handleValuesChange = (changedValues: any, allValues: any) => {
+    updatePaperData(allValues);
   };
 
   return (

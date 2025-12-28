@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { Card, Typography, Divider } from 'antd';
 import { PaperData, Footnote } from '../types/paper';
 import { FormatConfig } from '../types/format';
+import { parseContentWithNumbering, NumberingLevel } from '../utils/numbering';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -21,13 +22,25 @@ export const Preview: React.FC<PreviewProps> = ({ data, footnotes, formatConfig 
   // Content rendering function (not memoized to ensure it updates with format changes)
   const renderContentWithFootnotes = (text: string) => {
     const lines = text.split('\n');
+    const parsedLines = parseContentWithNumbering(text, formatConfig?.numberingIndents);
+    
     return lines.map((line, index) => {
+      const parsed = parsedLines[index];
+      
       if (!line.trim()) {
         return <div key={index} style={{ height: '1em' }} />;
       }
+      
       const parts = line.split(/(\[(\d+)\])/g);
+      
       return (
-        <Paragraph key={index} style={{ marginBottom: 8, textIndent: '2em' }}>
+        <Paragraph 
+          key={index} 
+          style={{ 
+            marginBottom: 8, 
+            textIndent: `${parsed.indent}em`
+          }}
+        >
           {parts.map((part, i) => {
             const footnoteMatch = part.match(/\[(\d+)\]/);
             if (footnoteMatch) {

@@ -39,6 +39,13 @@ export interface FormatConfig {
   contentEnglish: FontFormat & ParagraphFormat;
   footnoteChinese: FontFormat;
   footnoteEnglish: FontFormat;
+  numberingIndents: {
+    level1: number;
+    level2: number;
+    level3: number;
+    level4: number;
+    level5: number;
+  };
 }
 
 export const defaultFormatConfig: FormatConfig = {
@@ -130,5 +137,12 @@ export const defaultFormatConfig: FormatConfig = {
   footnoteEnglish: {
     family: 'Times New Roman',
     size: '小五'
+  },
+  numberingIndents: {
+    level1: 0,
+    level2: 2,
+    level3: 4,
+    level4: 6,
+    level5: 8
   }
 };
