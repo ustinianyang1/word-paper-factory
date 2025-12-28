@@ -69,7 +69,6 @@ export const Preview: React.FC<PreviewProps> = ({ data, footnotes, formatConfig 
   // Memoize sections to avoid re-rendering when content hasn't changed
   const abstractSection = useMemo(() => {
     if (!data.abstract) return null;
-    const config = formatConfig?.abstractContent;
     return (
       <>
         <div style={{ 
@@ -84,15 +83,15 @@ export const Preview: React.FC<PreviewProps> = ({ data, footnotes, formatConfig 
         <div style={{ 
           marginBottom: '20px', 
           textIndent: '2em', 
-          lineHeight: config?.lineSpacing ? config.lineSpacing : 1.8,
-          fontSize: getFontSize(config?.size || '小四'),
-          fontFamily: config?.family || '宋体'
+          lineHeight: formatConfig?.abstractContent?.lineSpacing ? formatConfig.abstractContent.lineSpacing : 1.8,
+          fontSize: getFontSize(formatConfig?.abstractContent?.size || '小四'),
+          fontFamily: formatConfig?.abstractContent?.family || '宋体'
         }}>
           {data.abstract}
         </div>
       </>
     );
-  }, [data.abstract, formatConfig?.abstractContent, formatConfig?.abstractTitle]);
+  }, [data.abstract, formatConfig?.abstractTitle, formatConfig?.abstractContent]);
 
   const keywordsSection = useMemo(() => {
     if (!data.keywords) return null;

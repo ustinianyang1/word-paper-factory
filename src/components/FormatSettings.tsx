@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Card,
   Form,
@@ -349,9 +349,16 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
 
   const handleReset = () => {
     formatConfigManager.resetConfig();
-    onChange(formatConfigManager.getConfig());
+    const newConfig = formatConfigManager.getConfig();
+    onChange(newConfig);
+    form.setFieldsValue(newConfig);
     message.success('已重置为默认格式');
   };
+
+  // Sync form values when config prop changes
+  useEffect(() => {
+    form.setFieldsValue(config);
+  }, [config]);
 
   const handleExport = () => {
     const configJson = formatConfigManager.exportConfig();
