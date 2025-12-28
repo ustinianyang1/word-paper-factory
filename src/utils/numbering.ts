@@ -13,10 +13,12 @@ export interface NumberingPattern {
   indent: number;
 }
 
-const chineseNumbers = ['零', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十'];
-
-function isChineseNumber(text: string): boolean {
-  return chineseNumbers.includes(text);
+export interface NumberingIndents {
+  level1: number;
+  level2: number;
+  level3: number;
+  level4: number;
+  level5: number;
 }
 
 export function detectNumberingLevel(line: string): NumberingLevel {
@@ -55,7 +57,19 @@ export function detectNumberingLevel(line: string): NumberingLevel {
   return NumberingLevel.NONE;
 }
 
-export function getIndentForLevel(level: NumberingLevel): number {
+export function getIndentForLevel(level: NumberingLevel, customIndents?: NumberingIndents): number {
+  if (customIndents) {
+    const indentMap: Record<NumberingLevel, number> = {
+      [NumberingLevel.NONE]: 2,
+      [NumberingLevel.LEVEL_1]: customIndents.level1,
+      [NumberingLevel.LEVEL_2]: customIndents.level2,
+      [NumberingLevel.LEVEL_3]: customIndents.level3,
+      [NumberingLevel.LEVEL_4]: customIndents.level4,
+      [NumberingLevel.LEVEL_5]: customIndents.level5
+    };
+    return indentMap[level];
+  }
+
   const indentMap: Record<NumberingLevel, number> = {
     [NumberingLevel.NONE]: 2,
     [NumberingLevel.LEVEL_1]: 0,
@@ -67,9 +81,9 @@ export function getIndentForLevel(level: NumberingLevel): number {
   return indentMap[level];
 }
 
-export function parseLineWithNumbering(line: string, customIndents?: Partial<Record<NumberingLevel, number>>): NumberingPattern {
+export function parseLineWithNumbering(line: string, customIndents?: NumberingIndents): NumberingPattern {
   const level = detectNumberingLevel(line);
-  const indent = customIndents?.[level] ?? getIndentForLevel(level);
+  const indent = getIndentForLevel(level, customIndents);
   
   return {
     level,
@@ -78,7 +92,7 @@ export function parseLineWithNumbering(line: string, customIndents?: Partial<Rec
   };
 }
 
-export function parseContentWithNumbering(content: string, customIndents?: Partial<Record<NumberingLevel, number>>): NumberingPattern[] {
+export function parseContentWithNumbering(content: string, customIndents?: NumberingIndents): NumberingPattern[] {
   const lines = content.split('\n');
   return lines.map(line => parseLineWithNumbering(line, customIndents));
 }

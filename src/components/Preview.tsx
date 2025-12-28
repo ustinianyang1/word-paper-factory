@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { Card, Typography, Divider } from 'antd';
 import { PaperData, Footnote } from '../types/paper';
 import { FormatConfig } from '../types/format';
-import { parseContentWithNumbering, NumberingLevel } from '../utils/numbering';
+import { parseContentWithNumbering } from '../utils/numbering';
 
 const { Title, Paragraph, Text } = Typography;
 

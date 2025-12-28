@@ -1,8 +1,13 @@
 import React, { useEffect } from 'react';
-import { Form, Input, Card, Button, Space } from 'antd';
+import {
+  Card,
+  Form,
+  Input,
+  Button,
+  Space
+} from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import { usePaperStore } from '../store/paperStore';
-import { sanitizeText, LIMITS } from '../utils/security';
 
 export const PaperForm: React.FC = () => {
   const [form] = Form.useForm();
@@ -12,7 +17,7 @@ export const PaperForm: React.FC = () => {
     form.setFieldsValue(paperData);
   }, [paperData, form]);
 
-  const handleValuesChange = (changedValues: any, allValues: any) => {
+  const handleValuesChange = (_: any, allValues: any) => {
     updatePaperData(allValues);
   };
 
