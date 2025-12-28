@@ -271,6 +271,7 @@ export class DocumentGenerator {
   }
 
   private getAlignmentType(alignment: string): "left" | "center" | "right" | "both" {
+    // Use object lookup instead of switch for better performance
     const alignmentMap: Record<string, "left" | "center" | "right" | "both"> = {
       left: 'left',
       center: 'center',

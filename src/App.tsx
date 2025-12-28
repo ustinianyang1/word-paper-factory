@@ -8,6 +8,13 @@ import { Preview } from './components/Preview';
 import { usePaperStore } from './store/paperStore';
 import { DocumentGenerator } from './core/documentGenerator';
 import { PaperWithFootnotes } from './types/paper';
+import { 
+  sanitizeText, 
+  validateFootnoteReferences, 
+  validatePersonalInfo,
+  LIMITS,
+  sanitizeFileName 
+} from './utils/security';
 
 const { Header, Content } = Layout;
 
@@ -18,42 +25,64 @@ const App: React.FC = () => {
   const { paperData, footnotes, formatConfig, updatePaperData, updateFootnotes, updateFormatConfig } = usePaperStore();
 
   const handleGenerate = async () => {
-    const requiredFields: Array<{ key: keyof Omit<typeof paperData, 'personalInfo'>; label: string }> = [
-      { key: 'title', label: '题目' },
-    ];
-
-    for (const field of requiredFields) {
-      if (!paperData[field.key]) {
-        message.error(`请填写 ${field.label}`);
-        return;
-      }
+    // Validate required fields
+    if (!paperData.title || paperData.title.trim() === '') {
+      message.error('请填写题目');
+      return;
     }
-
-    for (const item of paperData.personalInfo) {
-      if (!item.label || !item.value) {
-        message.error('请填写完整的个人信息项');
-        return;
-      }
+    
+    // Sanitize title
+    const sanitizedTitle = sanitizeText(paperData.title, LIMITS.TITLE_MAX_LENGTH);
+    if (sanitizedTitle !== paperData.title) {
+      message.warning('标题已自动调整');
     }
-
-    const footnoteRefsInContent = paperData.content.match(/\[(\d+)\]/g)?.map(ref => parseInt(ref.slice(1, -1))) || [];
-    const footnoteIds = footnotes.map(f => f.id);
-    const missingFootnotes = footnoteRefsInContent.filter(id => !footnoteIds.includes(id));
-
-    if (missingFootnotes.length > 0) {
-      message.warning(`正文中引用的脚注 [${missingFootnotes.join(', ')}] 不存在，请检查`);
+    
+    // Validate personal info
+    const personalInfoValidation = validatePersonalInfo(paperData.personalInfo);
+    if (!personalInfoValidation.isValid) {
+      message.error(personalInfoValidation.errors.join('; '));
+      return;
     }
-
+    
+    // Validate footnote references
+    const footnoteValidation = validateFootnoteReferences(paperData.content, footnotes);
+    if (!footnoteValidation.isValid && footnoteValidation.invalidRefs.length > 0) {
+      message.warning(`正文中引用的脚注 [${footnoteValidation.invalidRefs.join(', ')}] 不存在，请检查`);
+    }
+    
+    // Validate content length
+    if (paperData.content.length > LIMITS.CONTENT_MAX_LENGTH) {
+      message.error(`正文内容过长，最多支持 ${LIMITS.CONTENT_MAX_LENGTH} 个字符`);
+      return;
+    }
+    
     setGenerating(true);
     try {
-      const paperWithFootnotes: PaperWithFootnotes = {
-        ...paperData,
-        footnotes
+      // Create sanitized paper data
+      const sanitizedPaperData: PaperWithFootnotes = {
+        title: sanitizedTitle,
+        personalInfo: paperData.personalInfo.map(item => ({
+          id: item.id,
+          label: sanitizeText(item.label || '', LIMITS.PERSONAL_INFO_LABEL_MAX_LENGTH),
+          value: sanitizeText(item.value || '', LIMITS.PERSONAL_INFO_VALUE_MAX_LENGTH)
+        })),
+        abstract: sanitizeText(paperData.abstract || '', LIMITS.ABSTRACT_MAX_LENGTH),
+        keywords: sanitizeText(paperData.keywords || '', LIMITS.KEYWORDS_MAX_LENGTH),
+        introduction: sanitizeText(paperData.introduction || '', LIMITS.CONTENT_MAX_LENGTH),
+        content: sanitizeText(paperData.content, LIMITS.CONTENT_MAX_LENGTH),
+        conclusion: sanitizeText(paperData.conclusion || '', LIMITS.CONTENT_MAX_LENGTH),
+        references: sanitizeText(paperData.references || '', LIMITS.CONTENT_MAX_LENGTH),
+        footnotes: footnotes.map(f => ({
+          id: f.id,
+          content: sanitizeText(f.content || '', LIMITS.FOOTNOTE_MAX_LENGTH)
+        }))
       };
 
-      const generator = new DocumentGenerator(paperWithFootnotes, formatConfig);
+      const generator = new DocumentGenerator(sanitizedPaperData, formatConfig);
       const blob = await generator.generateBlob();
-      const fileName = generator.getFileName();
+      
+      // Sanitize filename
+      const fileName = sanitizeFileName(sanitizedTitle) + '.docx';
 
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -85,8 +114,8 @@ const App: React.FC = () => {
         justifyContent: 'space-between'
       }}>
         <div style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>
-          <FileTextOutlined style={{ marginRight: 8 }} />
-          Word文档自动生成器
+          <FileTextOutlined style={{ marginRight: 8 }} aria-label="文档图标" />
+          <span aria-label="应用程序标题">Word文档自动生成器</span>
         </div>
         <Button
           type="primary"
@@ -94,6 +123,7 @@ const App: React.FC = () => {
           onClick={handleGenerate}
           loading={generating}
           size="large"
+          aria-label="生成并下载文档"
         >
           生成并下载文档
         </Button>
@@ -103,11 +133,17 @@ const App: React.FC = () => {
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
+          aria-label="主要功能选项卡"
           items={[
             {
               key: 'edit',
-              label: '文档编辑',
-              icon: <FileTextOutlined />,
+              label: (
+                <span>
+                  <FileTextOutlined aria-label="编辑图标" />
+                  文档编辑
+                </span>
+              ),
+              icon: <FileTextOutlined aria-hidden="true" />,
               children: (
                 <Row gutter={[24, 24]}>
                   <Col xs={24} lg={12}>
@@ -122,22 +158,27 @@ const App: React.FC = () => {
                     </Space>
                   </Col>
                   <Col xs={24} lg={12}>
-                    <Preview data={paperData} footnotes={footnotes} />
+                    <Preview data={paperData} footnotes={footnotes} formatConfig={formatConfig} />
                   </Col>
                 </Row>
               )
             },
             {
               key: 'settings',
-              label: '格式设置',
-              icon: <SettingOutlined />,
+              label: (
+                <span>
+                  <SettingOutlined aria-label="设置图标" />
+                  格式设置
+                </span>
+              ),
+              icon: <SettingOutlined aria-hidden="true" />,
               children: (
                 <Row gutter={[24, 24]}>
                   <Col xs={24} lg={12}>
                     <FormatSettings config={formatConfig} onChange={handleFormatConfigChange} />
                   </Col>
                   <Col xs={24} lg={12}>
-                    <Preview data={paperData} footnotes={footnotes} />
+                    <Preview data={paperData} footnotes={footnotes} formatConfig={formatConfig} />
                   </Col>
                 </Row>
               )
