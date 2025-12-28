@@ -29,7 +29,8 @@ const createFormItem = (key: string, label: string[], name: string[], component:
 
 // Helper function to create format section items
 const createFormatSectionItems = (
-  sectionKey: string,
+  sectionPath: string[],
+  displayLabel: string,
   fontFamilyOptions: Array<{ label: string; value: FontFamily }>,
   fontSizeOptions: Array<{ label: string; value: FontSize }>,
   alignmentOptions: Array<{ label: string; value: Alignment }>,
@@ -39,15 +40,15 @@ const createFormatSectionItems = (
 ) => {
   const items = [
     createFormItem(
-      `${sectionKey}-family`,
-      [sectionKey, 'family'],
-      [sectionKey, 'family'],
+      `${sectionPath.join('-')}-family`,
+      [displayLabel, '字体'],
+      [...sectionPath, 'family'],
       <Select options={fontFamilyOptions} />
     ),
     createFormItem(
-      `${sectionKey}-size`,
-      [sectionKey, 'size'],
-      [sectionKey, 'size'],
+      `${sectionPath.join('-')}-size`,
+      [displayLabel, '字号'],
+      [...sectionPath, 'size'],
       <Select options={fontSizeOptions} />
     )
   ];
@@ -55,9 +56,9 @@ const createFormatSectionItems = (
   if (hasBold) {
     items.push(
       createFormItem(
-        `${sectionKey}-bold`,
-        [sectionKey, 'bold'],
-        [sectionKey, 'bold'],
+        `${sectionPath.join('-')}-bold`,
+        [displayLabel, '加粗'],
+        [...sectionPath, 'bold'],
         <Switch checkedChildren="加粗" unCheckedChildren="常规" />
       )
     );
@@ -65,9 +66,9 @@ const createFormatSectionItems = (
 
   items.push(
     createFormItem(
-      `${sectionKey}-alignment`,
-      [sectionKey, 'alignment'],
-      [sectionKey, 'alignment'],
+      `${sectionPath.join('-')}-alignment`,
+      [displayLabel, '对齐方式'],
+      [...sectionPath, 'alignment'],
       <Select options={alignmentOptions} />
     )
   );
@@ -75,9 +76,9 @@ const createFormatSectionItems = (
   if (hasLineSpacing) {
     items.push(
       createFormItem(
-        `${sectionKey}-lineSpacing`,
-        [sectionKey, 'lineSpacing'],
-        [sectionKey, 'lineSpacing'],
+        `${sectionPath.join('-')}-lineSpacing`,
+        [displayLabel, '行间距'],
+        [...sectionPath, 'lineSpacing'],
         <Select options={lineSpacingOptions} />
       )
     );
@@ -137,7 +138,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'title',
       label: '题目格式',
       children: createFormatSectionItems(
-        'title',
+        ['title'],
+        '题目',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -150,7 +152,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'personalInfo',
       label: '个人信息格式',
       children: createFormatSectionItems(
-        'personalInfo',
+        ['personalInfo'],
+        '个人信息',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -163,7 +166,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'abstractTitle',
       label: '摘要标题格式',
       children: createFormatSectionItems(
-        'abstractTitle',
+        ['abstractTitle'],
+        '摘要标题',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -176,7 +180,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'abstractContent',
       label: '摘要内容格式',
       children: createFormatSectionItems(
-        'abstractContent',
+        ['abstractContent'],
+        '摘要内容',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -186,36 +191,27 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       )
     },
     {
-      key: 'keywordsTitle',
-      label: '关键词标题格式',
-      children: createFormatSectionItems(
-        'keywordsTitle',
-        formatOptions.fontFamily,
-        formatOptions.fontSize,
-        formatOptions.alignment,
-        formatOptions.lineSpacing,
-        false, // hasBold
-        false // hasLineSpacing
-      )
-    },
-    {
-      key: 'keywordsContent',
-      label: '关键词内容格式',
-      children: createFormatSectionItems(
-        'keywordsContent',
-        formatOptions.fontFamily,
-        formatOptions.fontSize,
-        formatOptions.alignment,
-        formatOptions.lineSpacing,
-        false, // hasBold
-        false // hasLineSpacing
-      )
+      key: 'keywords',
+      label: '关键词格式',
+      children: [
+        ...createFormatSectionItems(
+          ['keywords'],
+          '关键词标题',
+          formatOptions.fontFamily,
+          formatOptions.fontSize,
+          formatOptions.alignment,
+          formatOptions.lineSpacing,
+          false, // hasBold
+          false // hasLineSpacing
+        )
+      ]
     },
     {
       key: 'introductionTitle',
       label: '引言标题格式',
       children: createFormatSectionItems(
-        'introductionTitle',
+        ['introduction', 'title'],
+        '引言标题',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -228,7 +224,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'introductionContent',
       label: '引言内容格式',
       children: createFormatSectionItems(
-        'introductionContent',
+        ['introduction', 'content'],
+        '引言内容',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -241,7 +238,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'contentChinese',
       label: '正文格式（中文）',
       children: createFormatSectionItems(
-        'contentChinese',
+        ['contentChinese'],
+        '正文中文',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -254,7 +252,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'contentEnglish',
       label: '正文格式（英文）',
       children: createFormatSectionItems(
-        'contentEnglish',
+        ['contentEnglish'],
+        '正文英文',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -267,7 +266,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'conclusionTitle',
       label: '结论标题格式',
       children: createFormatSectionItems(
-        'conclusionTitle',
+        ['conclusion', 'title'],
+        '结论标题',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -280,7 +280,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'conclusionContent',
       label: '结论内容格式',
       children: createFormatSectionItems(
-        'conclusionContent',
+        ['conclusion', 'content'],
+        '结论内容',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -293,7 +294,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'referencesTitle',
       label: '参考文献标题格式',
       children: createFormatSectionItems(
-        'referencesTitle',
+        ['references', 'title'],
+        '参考文献标题',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -306,7 +308,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'referencesContent',
       label: '参考文献内容格式',
       children: createFormatSectionItems(
-        'referencesContent',
+        ['references', 'content'],
+        '参考文献内容',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -319,7 +322,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'footnoteChinese',
       label: '脚注格式（中文）',
       children: createFormatSectionItems(
-        'footnoteChinese',
+        ['footnoteChinese'],
+        '脚注中文',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,
@@ -332,7 +336,8 @@ export const FormatSettings: React.FC<FormatSettingsProps> = ({ config, onChange
       key: 'footnoteEnglish',
       label: '脚注格式（英文）',
       children: createFormatSectionItems(
-        'footnoteEnglish',
+        ['footnoteEnglish'],
+        '脚注英文',
         formatOptions.fontFamily,
         formatOptions.fontSize,
         formatOptions.alignment,

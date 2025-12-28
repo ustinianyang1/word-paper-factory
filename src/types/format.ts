@@ -66,6 +66,7 @@ export const defaultFormatConfig: FormatConfig = {
   keywords: {
     family: '黑体',
     size: '小四',
+    bold: true,
     alignment: 'left'
   },
   introduction: {

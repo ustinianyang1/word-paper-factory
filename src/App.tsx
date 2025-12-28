@@ -137,12 +137,7 @@ const App: React.FC = () => {
           items={[
             {
               key: 'edit',
-              label: (
-                <span>
-                  <FileTextOutlined aria-label="编辑图标" />
-                  文档编辑
-                </span>
-              ),
+              label: '文档编辑',
               icon: <FileTextOutlined aria-hidden="true" />,
               children: (
                 <Row gutter={[24, 24]}>
@@ -165,12 +160,7 @@ const App: React.FC = () => {
             },
             {
               key: 'settings',
-              label: (
-                <span>
-                  <SettingOutlined aria-label="设置图标" />
-                  格式设置
-                </span>
-              ),
+              label: '格式设置',
               icon: <SettingOutlined aria-hidden="true" />,
               children: (
                 <Row gutter={[24, 24]}>

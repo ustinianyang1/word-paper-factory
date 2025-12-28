@@ -103,7 +103,10 @@ export const Preview: React.FC<PreviewProps> = ({ data, footnotes, formatConfig 
         fontSize: getFontSize(config?.size || '小四'),
         fontFamily: config?.family || '宋体'
       }}>
-        <span style={{ fontSize: '14px', fontWeight: 'bold', marginRight: '8px' }}>
+        <span style={{ 
+          fontWeight: config?.bold ? 'bold' : 'normal',
+          marginRight: '8px' 
+        }}>
           关键词：
         </span>
         <span>{data.keywords}</span>
